@@ -46,7 +46,7 @@ const Table: React.FC = () => {
     setSortDirection,
     setCurrentPage,
   } = useTableContext();
-  const [filter, setFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const columns: (keyof Page | "score")[] = [
     "url",
@@ -60,18 +60,18 @@ const Table: React.FC = () => {
     "score",
   ];
 
-  const filteredData = useMemo(() => {
+  const searchedData = useMemo(() => {
     return data.filter((page) =>
-      page.url.toLowerCase().includes(filter.toLowerCase())
+      page.url.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [data, filter]);
+  }, [data, searchTerm]);
+
+  const totalPages = Math.ceil(searchedData.length / itemsPerPage);
 
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredData.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredData, currentPage, itemsPerPage]);
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    return searchedData.slice(startIndex, startIndex + itemsPerPage);
+  }, [searchedData, currentPage, itemsPerPage]);
 
   const sortedPaginatedData = useMemo(() => {
     return [...paginatedData].sort((a, b) => {
@@ -103,9 +103,12 @@ const Table: React.FC = () => {
         <h2 className="text-2xl font-bold">Pages</h2>
         <input
           type="text"
-          placeholder="Filter by URL"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
+          placeholder="Search by URL"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
           className="px-2 py-1 bg-input rounded w-1/3 text-foreground"
         />
         <div className="flex items-center">
