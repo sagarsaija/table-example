@@ -60,27 +60,33 @@ const Table: React.FC = () => {
     "score",
   ];
 
-  const sortedAndFilteredData = useMemo(() => {
-    return [...data]
-      .filter((page) => page.url.toLowerCase().includes(filter.toLowerCase()))
-      .sort((a, b) => {
-        if (sortColumn === "score") {
-          return sortDirection === "asc"
-            ? calculateScore(a) - calculateScore(b)
-            : calculateScore(b) - calculateScore(a);
-        }
-        const aValue = a[sortColumn];
-        const bValue = b[sortColumn];
-        if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
-        if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
-        return 0;
-      });
-  }, [data, sortColumn, sortDirection, filter]);
+  const filteredData = useMemo(() => {
+    return data.filter((page) =>
+      page.url.toLowerCase().includes(filter.toLowerCase())
+    );
+  }, [data, filter]);
 
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return sortedAndFilteredData.slice(startIndex, startIndex + itemsPerPage);
-  }, [sortedAndFilteredData, currentPage, itemsPerPage]);
+    return filteredData.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredData, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+  const sortedPaginatedData = useMemo(() => {
+    return [...paginatedData].sort((a, b) => {
+      if (sortColumn === "score") {
+        return sortDirection === "asc"
+          ? calculateScore(a) - calculateScore(b)
+          : calculateScore(b) - calculateScore(a);
+      }
+      const aValue = a[sortColumn];
+      const bValue = b[sortColumn];
+      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [paginatedData, sortColumn, sortDirection]);
 
   const handleSort = (column: keyof Page | "score") => {
     if (column === sortColumn) {
@@ -115,17 +121,9 @@ const Table: React.FC = () => {
           </span>
           <button
             onClick={() =>
-              setCurrentPage(
-                Math.min(
-                  currentPage + 1,
-                  Math.ceil(sortedAndFilteredData.length / itemsPerPage)
-                )
-              )
+              setCurrentPage(Math.min(currentPage + 1, totalPages))
             }
-            disabled={
-              currentPage ===
-              Math.ceil(sortedAndFilteredData.length / itemsPerPage)
-            }
+            disabled={currentPage === totalPages}
             className="p-1 text-muted-foreground hover:text-foreground disabled:text-muted"
           >
             <ChevronRight size={20} />
@@ -181,7 +179,7 @@ const Table: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {paginatedData.map((page, index) => (
+            {sortedPaginatedData.map((page, index) => (
               <tr key={index} className="border-b border-border hover:bg-muted">
                 {columns.map((column) => (
                   <td
