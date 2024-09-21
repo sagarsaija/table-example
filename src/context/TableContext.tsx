@@ -2,15 +2,15 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
-interface Page {
+export interface Page {
   url: string;
-  scroll: number;
-  time: string;
-  bounce: number;
-  enters: number;
-  exits: number;
-  pageviews: number;
-  visitors: number;
+  avgScrollPercentage: number;
+  totalCount: number;
+  bounceCount: number;
+  startsWithCount: number;
+  endsWithCount: number;
+  totalPageviewCount: number;
+  totalVisitorCount: number;
 }
 
 interface TableContextType {

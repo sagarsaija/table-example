@@ -3,17 +3,12 @@
 import React, { useMemo, useState } from "react";
 import { useTableContext } from "@/context/TableContext";
 import { ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
-
-interface Page {
-  url: string;
-  avgScrollPercentage: number;
-  totalCount: number;
-  bounceCount: number;
-  startsWithCount: number;
-  endsWithCount: number;
-  totalPageviewCount: number;
-  totalVisitorCount: number;
-}
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Page } from "@/context/TableContext";
 
 const calculateScore = (page: Page) => {
   const pageviewScore = Math.log(page.totalPageviewCount + 1) * 20;
@@ -109,7 +104,7 @@ const Table: React.FC = () => {
         />
         <div className="flex items-center">
           <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
             disabled={currentPage === 1}
             className="p-1 text-muted-foreground hover:text-foreground disabled:text-muted"
           >
@@ -120,9 +115,9 @@ const Table: React.FC = () => {
           </span>
           <button
             onClick={() =>
-              setCurrentPage((prev) =>
+              setCurrentPage(
                 Math.min(
-                  prev + 1,
+                  currentPage + 1,
                   Math.ceil(sortedAndFilteredData.length / itemsPerPage)
                 )
               )
@@ -157,25 +152,27 @@ const Table: React.FC = () => {
                   className="p-2 text-left cursor-pointer"
                   onClick={() => handleSort(column)}
                 >
-                  {column === "url"
-                    ? "URL"
-                    : column === "avgScrollPercentage"
-                    ? "SCROLL"
-                    : column === "totalCount"
-                    ? "TIME"
-                    : column === "bounceCount"
-                    ? "BOUNCE"
-                    : column === "startsWithCount"
-                    ? "ENTERS"
-                    : column === "endsWithCount"
-                    ? "EXITS"
-                    : column === "totalPageviewCount"
-                    ? "PAGEVIEWS"
-                    : column === "totalVisitorCount"
-                    ? "VISITORS"
-                    : column === "score"
-                    ? "SCORE"
-                    : column.toUpperCase()}
+                  {column === "score" ? (
+                    <HoverCard>
+                      <HoverCardTrigger asChild>
+                        <span className="cursor-pointer">SCORE</span>
+                      </HoverCardTrigger>
+                      <HoverCardContent className="w-80">
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-semibold">
+                            Score Calculation
+                          </h4>
+                          <p className="text-sm">
+                            The score is calculated based on various metrics
+                            including pageviews, time on page, scroll depth,
+                            bounce rate, engagement, and unique visitors.
+                          </p>
+                        </div>
+                      </HoverCardContent>
+                    </HoverCard>
+                  ) : (
+                    getColumnHeader(column)
+                  )}
                   {sortColumn === column && (
                     <ArrowUpDown className="inline ml-1" size={14} />
                   )}
@@ -197,16 +194,7 @@ const Table: React.FC = () => {
                         : "text-foreground"
                     }`}
                   >
-                    {column === "score"
-                      ? calculateScore(page).toFixed(2)
-                      : column === "avgScrollPercentage" ||
-                        column === "bounceCount"
-                      ? `${page[column]}%`
-                      : column === "totalCount"
-                      ? `${Math.floor(page[column] / 60)}:${(page[column] % 60)
-                          .toString()
-                          .padStart(2, "0")}`
-                      : page[column]}
+                    {formatCellValue(page, column)}
                   </td>
                 ))}
               </tr>
@@ -216,6 +204,36 @@ const Table: React.FC = () => {
       </div>
     </div>
   );
+};
+
+const getColumnHeader = (column: keyof Page | "score"): string => {
+  const headers: Record<keyof Page | "score", string> = {
+    url: "URL",
+    avgScrollPercentage: "SCROLL",
+    totalCount: "TIME",
+    bounceCount: "BOUNCE",
+    startsWithCount: "ENTERS",
+    endsWithCount: "EXITS",
+    totalPageviewCount: "PAGEVIEWS",
+    totalVisitorCount: "VISITORS",
+    score: "SCORE",
+  };
+  return headers[column];
+};
+
+const formatCellValue = (page: Page, column: keyof Page | "score"): string => {
+  if (column === "score") {
+    return calculateScore(page).toFixed(2);
+  }
+  if (column === "avgScrollPercentage" || column === "bounceCount") {
+    return `${page[column]}%`;
+  }
+  if (column === "totalCount") {
+    const minutes = Math.floor(page[column] / 60);
+    const seconds = (page[column] % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }
+  return page[column as keyof Page].toString();
 };
 
 export default Table;
