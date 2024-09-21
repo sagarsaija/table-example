@@ -18,6 +18,35 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Implementation Details
+
+This project implements a table component to visualize page analytics data. Here are the key features and their implementations:
+
+1. **Table Layout**: The table is implemented using a custom React component (`Table.tsx`). It uses Tailwind CSS for styling and responsiveness.
+
+2. **Data Management**: The data is managed using React Context (`TableContext.tsx`). This allows for efficient state management and easy access to data across components.
+
+3. **Sorting**: Multi-column sorting is implemented in the `Table` component. When a column header is clicked, it triggers the `handleSort` function, which updates the `sortColumn` and `sortDirection` states.
+
+4. **Pagination**: The table implements pagination with 10 rows per page. This is managed through the `currentPage` and `itemsPerPage` states in the `TableContext`.
+
+5. **Search Functionality**: A global search by URL is implemented using the `searchTerm` state and the `useMemo` hook to filter the data based on the search term.
+
+6. **Score Calculation**: A custom scoring algorithm is implemented to calculate the importance of each page. The score is based on various metrics including pageviews, time on page, scroll depth, bounce rate, engagement, and unique visitors.
+
+7. **Theme Toggle**: A dark/light mode toggle is implemented using the `next-themes` library, allowing users to switch between color schemes.
+
+8. **Performance Optimization**: The component uses `useMemo` hooks to optimize performance by memoizing expensive calculations for sorting and filtering.
+
+The main components of the application are:
+
+- `Table.tsx`: The main table component that renders the data and handles user interactions.
+- `TableContext.tsx`: Manages the global state for the table data and settings.
+- `page.tsx`: The main page component that sets up the `TableProvider` and renders the `Table` component.
+- `pages.json`: The JSON file that holds all the data.
+
+The project uses Next.js for server-side rendering and routing, TypeScript for type safety, and Tailwind CSS for styling.
+
 ## Scoring Algorithm
 
 The page importance score is calculated using a combination of metrics, each contributing to the overall score:
@@ -66,31 +95,3 @@ Longer time spent on the page (up to 5 minutes)
 High scroll percentage
 Low bounce rate
 High engagement (many starts or ends of sessions on this page)
-
-## Implementation Details
-
-This project implements a table component to visualize page analytics data. Here are the key features and their implementations:
-
-1. **Table Layout**: The table is implemented using a custom React component (`Table.tsx`). It uses Tailwind CSS for styling and responsiveness.
-
-2. **Data Management**: The data is managed using React Context (`TableContext.tsx`). This allows for efficient state management and easy access to data across components.
-
-3. **Sorting**: Multi-column sorting is implemented in the `Table` component. When a column header is clicked, it triggers the `handleSort` function, which updates the `sortColumn` and `sortDirection` states.
-
-4. **Pagination**: The table implements pagination with 10 rows per page. This is managed through the `currentPage` and `itemsPerPage` states in the `TableContext`.
-
-5. **Search Functionality**: A global search by URL is implemented using the `searchTerm` state and the `useMemo` hook to filter the data based on the search term.
-
-6. **Score Calculation**: A custom scoring algorithm is implemented to calculate the importance of each page. The score is based on various metrics including pageviews, time on page, scroll depth, bounce rate, engagement, and unique visitors.
-
-7. **Theme Toggle**: A dark/light mode toggle is implemented using the `next-themes` library, allowing users to switch between color schemes.
-
-8. **Performance Optimization**: The component uses `useMemo` hooks to optimize performance by memoizing expensive calculations for sorting and filtering.
-
-The main components of the application are:
-
-- `Table.tsx`: The main table component that renders the data and handles user interactions.
-- `TableContext.tsx`: Manages the global state for the table data and settings.
-- `page.tsx`: The main page component that sets up the `TableProvider` and renders the `Table` component.
-
-The project uses Next.js for server-side rendering and routing, TypeScript for type safety, and Tailwind CSS for styling.
